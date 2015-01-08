@@ -43,7 +43,7 @@ def register(request):
 		new_user.email = request.POST['email']
 		new_user.password_hash = hash(request.POST['password'])
 		if request.POST['type'] == 'pt':
-			newpt.is_pt = True
+			new_user.is_pt = True
 		new_user.save()
 		j = json.dumps({'success':1})
 		return Ht(j, content_type = "application/json", status = 200)

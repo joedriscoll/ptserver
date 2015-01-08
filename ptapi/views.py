@@ -2,6 +2,7 @@ from django.shortcuts import render
 from models import *
 from django.http import HttpResponse as Ht
 import json
+import random
 from django.views.decorators.csrf import csrf_exempt
 def xauth(request):
 	#if request.user.us_authenticated():
@@ -11,30 +12,48 @@ def xauth(request):
 		#type, token = request.META['HTTP_AUTHORIZATION"].split()
 		#emailStr, passwordStr 
 
+def hash(x):
+	return x
+
 def index(request):
 	return Ht("You are at the PT Assistant Server!")
 # Create your views here.
 @csrf_exempt
 def login(request):
 	#print request.POST['username']
-	j = json.dumps({'success':1,'id':1})
-	return Ht(j,content_type = "application/json")
+	try:
+		user = User.objects.get(name = request.POST['username'])
+		if user.password_hash == hash(request.POST['password']):
+			session_key = str(random.randint(0,100000000000000000))+user.name
+			user.session_key = session_key
+			j = json.dumps({'success':1,'session_key':session_key})
+			return Ht(j,content_type = "application/json")
+		else:
+			j = json.dumps({'success':2,'UserName':user.name})
+			return Ht(j,content_type = "application/json")
+	except:
+		print 'hihihih'
+		return  Ht("Invalid Request", status = 400)
+
+@csrf_exempt
 def register(request):
 	try:
 		new_user = User()
-		new_user.name = request.POST['name']
+		new_user.name = request.POST['username']
 		new_user.email = request.POST['email']
-		new_user.password_hash = request.POST['ps']
+		new_user.password_hash = hash(request.POST['password'])
 		if request.POST['type'] == 'pt':
 			newpt.is_pt = True
 		new_user.save()
+		j = json.dumps({'success':1})
+		return Ht(j, content_type = "application/json", status = 200)
 	except:
 		return Ht("Invalid Request", status = 400)
-	return Ht('', contet_type = "application/json")
+	
 	
 @csrf_exempt
 def logPain(request):
-	return Ht(json.dumps({'success':1}),content_type = "application/json")
+	return Ht(json.dumps({'success':1,}),content_type = "application/json")
 	user = xauth(request)
 	if user == None:
 		return getAuth(request)

@@ -26,6 +26,7 @@ def login(request):
 		if user.password_hash == hash(request.POST['password']):
 			session_key = str(random.randint(0,100000000000000000))+user.name
 			user.session_key = session_key
+			user.save()
 			j = json.dumps({'success':1,'session_key':session_key})
 			return Ht(j,content_type = "application/json")
 		else:
@@ -50,7 +51,20 @@ def register(request):
 	except:
 		return Ht("Invalid Request", status = 400)
 	
-	
+@csrf_exempt
+def getSettings(request):
+	if True:
+		print request.GET
+		user = User.objects.get(name = 'b')
+		print user.session_key
+		user = User.objects.get(session_key = request.GET['session_key'])
+		try:
+			pair = Pair.objects.get(patient = user)
+			j = json.dumps({'assigned_pt':pair.assigned_pt})
+		except:
+			j = json.dumps({'assigned_pt':'None'})
+		return Ht(j,content_type = "application/json", status = 200)
+
 @csrf_exempt
 def logPain(request):
 	return Ht(json.dumps({'success':1,}),content_type = "application/json")

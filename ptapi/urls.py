@@ -8,5 +8,6 @@ urlpatterns = patterns('',
     url(r'logPain', views.logPain, name = 'logPain'),
     url(r'register', views.register, name = 'register'),
     url(r'settings', views.getSettings, name = 'settings'),
+    url(r'getPatients', views.getPatients, name = 'getPatients'),
      url(r'assignPT', views.addPair, name = 'addPair')
 )

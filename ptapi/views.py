@@ -139,16 +139,16 @@ def getPain(request):
 	except:
 		return Ht("Invalid Request", status = 400)
 
+@csrf_exempt
 def getPatients(request):
-	user = xauth(request)
-	if user == None:
-		return getAuth(request)
-	try:
-		pair_list = Pait.models.get(assigned_pt = user)
-		response = [{'name': pair.patient.name, 'id': pair.patient.id} for pair in pair_list]
-		json_response = json.loads(response)
+	if True:
+		user = User.objects.get(session_key = request.GET['session_key'])
+		pair_list = Pair.objects.filter(assigned_pt = user)
+		plist = [pair.patient.name for pair in pair_list]
+		response = {'patient_list':plist}
+		json_response = json.dumps(response)
 		return Ht(json_response, content_type = "application/json")
-	except:
+	else:
 		return Ht("Invalid Requset", status = 400)
 
 def getActivity(requset):

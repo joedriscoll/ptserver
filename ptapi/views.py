@@ -94,18 +94,17 @@ def addPair(request):
 
 @csrf_exempt
 def logPain(request):
-	return Ht(json.dumps({'success':1,}),content_type = "application/json")
-	user = xauth(request)
-	if user == None:
-		return getAuth(request)
-	try:	
+	try:
+		user = User.objects.get(session_key = request.POST['session_key'])
 		new_pain = Pain()
 		new_pain.data = request.POST['data']
 		new_pain.patient = user
 		new_pain.save()
+		j = json.dumps({'success':1})
+		return Ht(j,content_type = "application/json", status = 200)
 	except:
-		return Ht("Invalid Request", status = 400)
-	return Ht('saved',content_type = "application/json")
+		j = json.dumps({'success':2})
+		return Ht(j,content_type = "application/json", status = 200)
 
 def addActivity(request):
 	user = xauth(request)

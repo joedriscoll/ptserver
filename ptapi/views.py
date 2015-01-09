@@ -3,6 +3,7 @@ from models import *
 from django.http import HttpResponse as Ht
 import json
 import random
+import string
 from django.views.decorators.csrf import csrf_exempt
 def xauth(request):
 	#if request.user.us_authenticated():
@@ -24,7 +25,7 @@ def login(request):
 	try:
 		user = User.objects.get(name = request.POST['username'])
 		if user.password_hash == hash(request.POST['password']):
-			session_key = str(random.randint(0,100000000000000000))+user.name
+			session_key = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits + string.ascii_lowercase) for _ in range(1000))+user.name
 			user.session_key = session_key
 			user.save()
 			j = json.dumps({'success':1,'session_key':session_key})
@@ -53,17 +54,43 @@ def register(request):
 	
 @csrf_exempt
 def getSettings(request):
-	if True:
-		print request.GET
-		user = User.objects.get(name = 'b')
-		print user.session_key
+	try:
 		user = User.objects.get(session_key = request.GET['session_key'])
+		print 'aaaaaaa'
 		try:
 			pair = Pair.objects.get(patient = user)
-			j = json.dumps({'assigned_pt':pair.assigned_pt})
+			j = json.dumps({'assigned_pt':pair.assigned_pt.name})
 		except:
 			j = json.dumps({'assigned_pt':'None'})
 		return Ht(j,content_type = "application/json", status = 200)
+	except:
+		j = json.dumps({'assigned_pt':'None'})
+		return Ht(j,content_type = "application/json", status = 200)
+		
+@csrf_exempt
+def addPair(request):
+	if True:
+		user = User.objects.get(session_key = request.POST['session_key'])
+		try:
+			pt = User.objects.get(name = request.POST['pt_username'])
+			if pt.is_pt != True:
+				j = json.dumps({'success':2})
+				return Ht(j,content_type = "application/json", status = 200)
+		except:
+			j = json.dumps({'success':2})
+			return Ht(j,content_type = "application/json", status = 200)
+		try:
+			pairlist = Pair.objects.filter(patient = user)
+			pair.delete()
+		except:
+			pass
+		new_pair = Pair()
+		new_pair.patient = user
+		new_pair.assigned_pt = pt
+		new_pair.save()
+		j = json.dumps({'success':1})
+		return Ht(j,content_type = "application/json", status = 200)
+		
 
 @csrf_exempt
 def logPain(request):

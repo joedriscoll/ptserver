@@ -7,5 +7,6 @@ urlpatterns = patterns('',
     url(r'login', views.login, name = 'login'),
     url(r'logpain', views.logPain, name = 'logpain'),
     url(r'register', views.register, name = 'register'),
-    url(r'settings', views.getSettings, name = 'settings')
+    url(r'settings', views.getSettings, name = 'settings'),
+     url(r'assignPT', views.addPair, name = 'addPair')
 )

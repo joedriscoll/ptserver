@@ -141,27 +141,36 @@ def getPain(request):
 
 @csrf_exempt
 def getPatients(request):
-	if True:
+	try:
 		user = User.objects.get(session_key = request.GET['session_key'])
 		pair_list = Pair.objects.filter(assigned_pt = user)
 		plist = [pair.patient.name for pair in pair_list]
-		response = {'patient_list':plist}
+		response = {'success':1, 'patient_list':plist}
 		json_response = json.dumps(response)
 		return Ht(json_response, content_type = "application/json")
-	else:
-		return Ht("Invalid Requset", status = 400)
+	except:
+		response = {'success':0, 'patient_list':[]}
+		json_response = json.dumps(response)
+		return Ht(json_response, content_type = "application/json")
 
-def getActivity(requset):
-	user = xauth(request)
-	if user == None:
-		return getAuth(request)
-	try:
-		person_id = requset.GET('id')
-		person = User.models.get(id = person_id)
-		
-		joined = Pair.models.get(patient = person)
-		if joined.assigned_pt != user:
-			return Ht('not assigned patient', status = 400)
+@csrf_exempt
+def getActivity(request):
+	if True:
+		user = User.objects.get(session_key = request.GET['session_key'])
+		patient = User.objects.get(name = request.GET['patient_username'])
+		pair = Pair.objects.get(patient = patient)
+		if pair.assigned_pt != user:
+			response = {'success':0}
+			json_response = json.dumps(response)
+			return Ht(json_response, content_type = "application/json")
+		else:
+			response = {'graphs':[{'name':'Monday', 'data':{'activity':[100 for x in range(12)], 'pain':[1,2,0,0,0,0,2,0,0,0,0,0]}}, {'name':'Tuesday', 'data':{'activity':[100 for x in range(12)], 'pain':[1,2,0,0,0,0,2,0,0,0,0,0]}}]}
+			json_response = json.dumps(response)
+			return Ht(json_response, content_type = "application/json")
+	else:
+		return Ht("Invalid Request", status = 400)
+			
+		'''
 		time_delta = datetime.datetime.now() - datetime.timedelta(days = 14)
 		act_list = Activity.models.filter(patient = person, time_lt = time_delta)
 		response = [{'time':act.time, 'data':act.data, 'type': act.type} for act in act_list]
@@ -169,6 +178,7 @@ def getActivity(requset):
 		return Ht(json_response, content_type = "application/json")
 	except:
 		return Ht("Invalid Requset", status = 400)
+		'''
 		
 def addPossiblePair(requset):
 	user = xauth(request)

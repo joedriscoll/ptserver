@@ -94,7 +94,8 @@ def addPair(request):
 
 @csrf_exempt
 def logPain(request):
-	try:
+	print request
+	if True:
 		user = User.objects.get(session_key = request.POST['session_key'])
 		new_pain = Pain()
 		new_pain.data = request.POST['data']
@@ -102,7 +103,7 @@ def logPain(request):
 		new_pain.save()
 		j = json.dumps({'success':1})
 		return Ht(j,content_type = "application/json", status = 200)
-	except:
+	else:
 		j = json.dumps({'success':2})
 		return Ht(j,content_type = "application/json", status = 200)
 

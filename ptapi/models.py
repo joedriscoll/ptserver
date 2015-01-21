@@ -27,5 +27,17 @@ class PossiblePair(models.Model):
 	assigned_pt = models.ForeignKey(User, related_name = 'assigned_pt')
 	patient = models.ForeignKey(User)
 	
+class Exercise(models.Model):
+	patient = models.ForeignKey(User)
+	days_assigned = models.CharField(max_length = 7)
+	name = models.CharField(max_length = 100)
+	reps = models.CharField(max_length = 100, null = True, blank = True)
+	lastFiveTimes = models.CharField(max_length = 400)
+	first_day = models.DateTimeField(auto_now = True)
+
+
+	
+	
+	
 # Create your models here.
 

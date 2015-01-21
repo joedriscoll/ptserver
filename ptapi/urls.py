@@ -10,6 +10,12 @@ urlpatterns = patterns('',
     url(r'settings', views.getSettings, name = 'settings'),
     url(r'getPatients', views.getPatients, name = 'getPatients'),
     url(r'getActivity', views.getActivity, name = 'getActivity'),
+    url(r'updateExercise', views.updateExercise, name = 'updateExercise'), 
+    url(r'getExercisesForPatient', views.getExercisesForPatient, name = 'getExercisesForPatient'),
+    url(r'patientsExerciseData', views.getPatientsExerciseData, name = 'patientsExerciseData'),
+    url(r'editExerciseData', views.editExerciseData, name = 'editExerciseData'), 
+    url(r'addNewExercise', views.addNewExercise, name = 'addNewExercise'), 
+    url(r'addNewInstance', views.postExerciseInstance, name = 'addNewInstance'),
      url(r'assignPT', views.addPair, name = 'addPair')
      
 )

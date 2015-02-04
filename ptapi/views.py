@@ -354,8 +354,8 @@ def getPatientsExerciseData(request):
 @csrf_exempt
 def editExerciseData(request):
 #get the pair
-	patient = User.objects.get(name = request.POST['patient_username'])
-	exercise = Exercise.objects.get(id = request.POST['e_id'])
+	patient = User.objects.get(name = request.GET['patient_username'])
+	exercise = Exercise.objects.get(id = request.GET['e_id'])
 	exercise.name = request.POST['name']
 	exercise.reps = request.POST['sets']
 	exercise.days_assigned = json.dumps(request.POST['assigned_days'])

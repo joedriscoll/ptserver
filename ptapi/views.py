@@ -200,7 +200,6 @@ def getPatients(request):
 
 
 def getExerciseResponse(patient):
-	print 'resessese'
 	response = {}
 	exercise_list = Exercise.objects.filter(patient = patient)
 	dates = getLast14Days()
@@ -217,26 +216,17 @@ def getExerciseResponse(patient):
 		all_exercises.append({'name':e.name, 'e_id':e.id, 'e_sets':e.reps, 'e_assigned_days':assigned_days})
 		print e.lastFiveTimes
 		if len(e.lastFiveTimes) > 1:
-			print 'hi'
 			last5 = json.loads(e.lastFiveTimes)
 		else:
 			last5 = []
 		print last5
-		print 'sefsefsef'
 		print assigned_days
 		for d in range(len(assigned_days)):
-			print d
 			if assigned_days[d]  == 1:
-				print 'it asss'
 				for alld in dates[d]:
-					print 'hihihih'
 					found = False
-					print alld
 					for x in last5:
-						print x
-						print 'xxx'
 						if alld == x['date']:
-							print 'there is is'
 							found = True
 							current_exercises.append({'name':e.name, 'e_id':e.id, 'e_sets':e.reps, 'e_assigned_days':assigned_days, 'e_date': alld, "e_completion":int(x['completion'])})
 					if found == False:

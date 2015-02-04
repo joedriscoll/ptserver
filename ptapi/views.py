@@ -345,10 +345,8 @@ def getPatientsExerciseData(request):
 	print request
 	print request.GET['patient_username'] + 'hihi'
 	patient = User.objects.get(name = request.GET['patient_username'])
-	print "patient"
 	response = {"success":1, "all_exercises":[{"name":"hug","e_id":0, "e_sets":"there was a time", "e_assigned_days":[0,0,1,0,0,0,0]}], "current_exercises":[{"name":"kiss","e_id":0,"e_date":"8/11/14","e_completion":0}]}
 	response = getExerciseResponse(patient)
-	print 'res'
 	json_response = json.dumps(response)
 	return Ht(json_response, content_type = "application/json")
 	

@@ -343,8 +343,8 @@ def getExercisesForPatient(request):
 def getPatientsExerciseData(request):
 #get the pair
 	print request
-	print request.POST['patient_username'] + 'hihi'
-	patient = User.objects.get(name = request.POST['patient_username'])
+	print request.GET['patient_username'] + 'hihi'
+	patient = User.objects.get(name = request.GET['patient_username'])
 	response = {"success":1, "all_exercises":[{"name":"hug","e_id":0, "e_sets":"there was a time", "e_assigned_days":[0,0,1,0,0,0,0]}], "current_exercises":[{"name":"kiss","e_id":0,"e_date":"8/11/14","e_completion":0}]}
 	response = getExerciseResponse(patient)
 	json_response = json.dumps(response,ensure_ascii = True)
@@ -354,8 +354,8 @@ def getPatientsExerciseData(request):
 @csrf_exempt
 def editExerciseData(request):
 #get the pair
-	patient = User.objects.get(name = request.GET['patient_username'])
-	exercise = Exercise.objects.get(id = request.GET['e_id'])
+	patient = User.objects.get(name = request.POST['patient_username'])
+	exercise = Exercise.objects.get(id = request.POST['e_id'])
 	exercise.name = request.POST['name']
 	exercise.reps = request.POST['sets']
 	exercise.days_assigned = json.dumps(request.POST['assigned_days'])

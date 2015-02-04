@@ -348,6 +348,9 @@ def getPatientsExerciseData(request):
 	response = {"success":1, "all_exercises":[{"name":"hug","e_id":0, "e_sets":"there was a time", "e_assigned_days":[0,0,1,0,0,0,0]}], "current_exercises":[{"name":"kiss","e_id":0,"e_date":"8/11/14","e_completion":0}]}
 	response = getExerciseResponse(patient)
 	json_response = json.dumps(response)
+	print json_response
+	print'jhijjijijij'
+	json_response = '{"all_exercises": [{"e_assigned_days": [0, 1, 0, 0, 0, 0, 0], "e_id": 1, "name": "aaannn", "e_sets": "lll"}], "current_exercises": [{"name": "aaannn", "e_date": "02/03/15", "e_id": 1, "e_assigned_days": [0, 1, 0, 0, 0, 0, 0], "e_completion": 0, "e_sets": "lll"}, {"name": "aaannn", "e_date": "01/27/15", "e_id": 1, "e_assigned_days": [0, 1, 0, 0, 0, 0, 0], "e_completion": 0, "e_sets": "lll"}, {"name": "aaannn", "e_date": "01/20/15", "e_id": 1, "e_assigned_days": [0, 1, 0, 0, 0, 0, 0], "e_completion": 2, "e_sets": "lll"}], "success": 1}'
 	return Ht(json_response, content_type = "application/json")
 	
 @csrf_exempt

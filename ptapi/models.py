@@ -35,6 +35,14 @@ class Exercise(models.Model):
 	lastFiveTimes = models.CharField(max_length = 400)
 	first_day = models.DateTimeField(auto_now = True)
 
+class Achievement(models.Model):
+	name = models.CharField(max_length = 100)
+	description = models.CharField(max_length = 400)
+	
+class UserAchievement(models.Model):
+	user = models.ForeignKey(User)
+	achievement = models.ForeignKey(Achievement)
+	unique_together = (('user','achievement'),)
 
 	
 	

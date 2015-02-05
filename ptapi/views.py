@@ -365,8 +365,13 @@ def editExerciseData(request):
 	json_response = json.dumps(response)
 	return Ht(json_response, content_type = "application/json")
 
-
-
+@csrf_exempt
+def getAchievements(request):
+	if True:
+		user = User.objects.get(session_key = request.GET['session_key'])
+		response = {'success':1, "nameToD":{'first':"this is the first thing", 'second':"This is the second thing"}, "complete":['first','second']}
+		json_response = json.dumps(response)
+		return Ht(json_response, content_type = "application/json")
 		
 		
 @csrf_exempt
@@ -461,7 +466,7 @@ def getPossiblePair(request):
 		return Ht('Invalid Response', status = 400)
 		
 		
-		
+
 		
 		
 		

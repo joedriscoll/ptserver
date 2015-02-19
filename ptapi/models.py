@@ -7,6 +7,7 @@ class User(models.Model):
 	name = models.CharField(max_length = 100, unique = True)
 	email = models.CharField(max_length = 100)
 	session_key = models.CharField(max_length = 2000, null = True, blank = True)
+	session_ip = models.GenericIPAddressField(null = True, blank = True)
 
 class Pair(models.Model):
 	assigned_pt = models.ForeignKey(User, related_name = 'assinged_pt')
@@ -19,9 +20,11 @@ class Pain(models.Model):
 
 class Activity(models.Model):
 	patient = models.ForeignKey(User)
-	time = models.DateTimeField(auto_now = True)
+	time = models.CharField(max_length = 100, null = True, blank = True)
 	data = models.CharField(max_length = 100)
 	type = models.CharField(max_length = 100)
+	hour = models.IntegerField(null = True, blank = True)
+	unique_together = (('hour','time','patient'))
 	
 class PossiblePair(models.Model):
 	assigned_pt = models.ForeignKey(User, related_name = 'assigned_pt')

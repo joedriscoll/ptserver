@@ -3,10 +3,22 @@ import views
 
 class Request():
     def __init__(self):
-        self.GET = {'patient_username':'joe', 'session_key':'bTQgOur0gDbdleBeBOUcuASSrCUgLeJwR38wSXc9zlVYR8ifQZxWqwPugErZf7WqUhr6Er0tIRYpzAQlWTBSFsYvUd48CjmgUioMmZxVCAlRCqSNChtUqGcJS9QjfwePKNgRVOJCHqD1oeeN6MT78FZCtThIBP5z5jccqaTDBeDFIYn8jG5W3GleKOyookP7wai79JMqCR03rsYszW5y3gHxsvAi1e6LNkvue5kpWk8Mio1p7WCKP6QU5pFByuxMWEGpkPfzXiTSxrNESxdM11Y2BwQ7EkMrnPnPvFk5kjuwIC37LcdK2t2X0391U3SdolYXEjLXEVqMHH0VitzlOhynV07jA3EZlhdrdZkPPfXNfMnXwxHSnOUufT0ZTzuPz3gVEXzzjDsKoePvbSocuXeKDQCFQ5lkFqOMCvCrTlVIKqb43zhCrhuW6Z9Lpck4pjXYtBnjmmcXmMWGV1jryC22tk75RVQVPJC2Os67LDPiEgOtkObX1hy8LhMmUYxFiUJnsiBsu07KIrZIFx1rkiPXwt5ys44ONIfRtNoYXz0bd4qIGEQRhTbYVLnQAiE7rAViK7jVk2guOsGbD2sP4OsaKjfxbocJvXNgOfC0gTfru9syx96HzfNAvWssIHfzWmRF1hOPGA60OpH06PWHbFJpxsBfqM7lPR6zWMB9OEPTLPl5zWxocTGjRh1cA9bGpbNCKrlluIfCgXX6G2RNoucCOoSgrw8pNLa6l2BtYqXyoYWI2TfgeT2hqVgoxinMRcHPR0vKGkEHcpUtJcqFc3jUsZhZA0JCiWcr1HJ7neZvqEZcRYv45TARcTY4OhhNNdQ0VAr4yclwWS4CQHPykvdqWG4FD6vjfYWbRecPP3VPJWlvXhbkNjsnGkA4a9rIV1fy2quHVDps4W9YKI9G78dFfZOciymhjSqoB8sqKyKvNbEAbRmpcyBALMov5qQTzCCcwpidQ5HSD3cIxlXlHjopg6lYftnKmkaILMmCc'}
-
+		self.POST = {'data': [{'date':'1', 'hour':'2', 'steps':'90'}]}
 
 r = Request()
-print views.getPatientsExerciseData(r)
+#print views.getPatientsExerciseData(r)
+print views.addSteps(r)
+
+
+patient = views.User.objects.get(name = 'joe')
+act_log = views.Activity.objects.filter(patient = patient)
+for a in act_log:
+	print a.data + '-' + a.time		
+def printPains():
+	patient = views.User.objects.get(name = "joe")
+	pain_log = views.Pain.objects.filter(patient = patient)
+	print pain_log
+	
+#printPains()
 
 # Create your tests here.

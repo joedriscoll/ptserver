@@ -6,6 +6,7 @@ import random
 import string
 import datetime
 from django.views.decorators.csrf import csrf_exempt
+from ipware.ip import get_ip
 def xauth(request):
 	#if request.user.us_authenticated():
 	return request.user
@@ -31,6 +32,7 @@ def getLast14Days():
 def index(request):
 	return Ht("You are at the PT Assistant Server!")
 # Create your views here.
+
 @csrf_exempt
 def login(request):
 	#print request.POST['username']
@@ -39,6 +41,11 @@ def login(request):
 		if user.password_hash == hash(request.POST['password']):
 			session_key = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits + string.ascii_lowercase) for _ in range(1000))+user.name
 			user.session_key = session_key
+			ip = get_ip(request)
+			if ip is not None:
+				user.session_ip = request.META['HTTP_X_FORWARDED_FOR']
+			else:
+				user.session_ip = "0.0.0.0.0.0"
 			user.save()
 			j = json.dumps({'success':1,'session_key':session_key})
 			return Ht(j,content_type = "application/json")
@@ -118,38 +125,7 @@ def logPain(request):
 	except:
 		j = json.dumps({'success':2})
 		return Ht(j,content_type = "application/json", status = 200)
-
-
-
-@csrf_exempt
-def getPatientExercises(request):
-	return Ht(j,content_type = "application/json", status = 200)
-	if True:
-		user = User.objects.get(session_key = request.POST['session_key'])
-		#exercise_list = 
-	today = datetime.date.isoweekday() - 1
-	j = json.dumps({'success':1})
-	return Ht(j,content_type = "application/json", status = 200)
 	
-	
-@csrf_exempt
-def updateExercise(request):
-	j = json.dumps({'success':1})
-	return Ht(j,content_type = "application/json", status = 200)
-	'''
-	if True:
-		re
-		user = User.objects.get(session_key = request.POST['session_key'])
-		new_pain = Pain()
-		new_pain.data = request.POST['data']
-		new_pain.patient = user
-		new_pain.save()
-		j = json.dumps({'success':1})
-		return Ht(j,content_type = "application/json", status = 200)
-	else:
-		j = json.dumps({'success':2})
-		return Ht(j,content_type = "application/json", status = 200)
-	'''
 
 def addActivity(request):
 	user = xauth(request)
@@ -391,7 +367,32 @@ def addNewExercise(request):
 	json_response = json.dumps(response)
 	return Ht(json_response, content_type = "application/json")
 	
-	
+@csrf_exempt
+def addSteps(request):
+	if True:
+		user = User.objects.get(session_key = request.POST['session_key'])
+		#user = User.objects.get(name = "joe")
+		for step in request.POST['data']:
+			try:
+				act = Activity.objects.get(time = step['date'], hour = int(step['hour']), type = 'steps')
+				if act.data != step['steps']:
+					act.data = step['steps']
+					act.save()
+			except:
+				act = Activity()
+				act.time = step['date']
+				act.hour = int(step['hour'])
+				act.type = 'steps'
+				act.data = step['steps']
+				act.patient = user
+				act.save()
+		response = {"success":1}
+		json_response = json.dumps(response)
+		return Ht(json_response, content_type = "application/json")
+	else:
+		return Ht(json.dumps({'success':2}), content_type = "application/json")
+				
+				
 @csrf_exempt
 def getActivity(request):
 	if True:
@@ -433,7 +434,8 @@ def addPossiblePair(requset):
 		return Ht('good', content_type = "application/json")
 	except:
 		return Ht("Invalid Request", status = 400)
-
+		
+'''
 def confirmPossiblePair(request):
 	user = xauth(request)
 	if user == None:
@@ -464,12 +466,14 @@ def getPossiblePair(request):
 		return Ht(json_resposne, content_type = "application/json")
 	except:
 		return Ht('Invalid Response', status = 400)
-		
-		
 
+'''	
 		
-		
-		
+'''
+
+
+
+'''
 		
 		
 		

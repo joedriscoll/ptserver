@@ -15,7 +15,8 @@ class Pair(models.Model):
 	
 class Pain(models.Model):
 	patient = models.ForeignKey(User)
-	time = models.DateTimeField(auto_now = True)
+	time = models.CharField(max_length = 300, null = True, blank = True)
+	hour = models.IntegerField(null = True, blank = True)
 	data = models.CharField(max_length = 300)
 
 class Activity(models.Model):
@@ -32,7 +33,7 @@ class PossiblePair(models.Model):
 	
 class Exercise(models.Model):
 	patient = models.ForeignKey(User)
-	days_assigned = models.CharField(max_length = 7)
+	days_assigned = models.CharField(max_length = 20)
 	name = models.CharField(max_length = 100)
 	reps = models.CharField(max_length = 100, null = True, blank = True)
 	lastFiveTimes = models.CharField(max_length = 400)

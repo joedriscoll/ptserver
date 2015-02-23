@@ -18,6 +18,7 @@ class Pain(models.Model):
 	time = models.CharField(max_length = 300, null = True, blank = True)
 	hour = models.IntegerField(null = True, blank = True)
 	data = models.CharField(max_length = 300)
+	unique_together = (('patient', 'time', 'hour'))
 
 class Activity(models.Model):
 	patient = models.ForeignKey(User)

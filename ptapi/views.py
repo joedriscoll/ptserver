@@ -28,6 +28,18 @@ def getLast14Days():
 		dates[now.isoweekday()-1].append(now.strftime("%m/%d/%y"))
 		i += 1
 	return dates
+
+
+def get3Days():
+	now = datetime.datetime.now()
+	now = now + datetime.timedelta(days = 2)
+	dates = {0:[],1:[],2:[],3:[],4:[],5:[],6:[]}
+	i = 0
+	while i < 3:
+		now = now - datetime.timedelta(days=1)
+		dates[now.isoweekday()-1].append(now.strftime("%m/%d/%y"))
+		i += 1
+	return dates
 	
 def index(request):
 	return Ht("You are at the PT Assistant Server!")
@@ -113,15 +125,19 @@ def addPair(request):
 
 @csrf_exempt
 def logPain(request):
-	print request
 	try:
 		user = User.objects.get(session_key = request.POST['session_key'])
-		new_pain = Pain()
-		new_pain.data = request.POST['data']
-		new_pain.patient = user
-		new_pain.hour = int(request.POST['hour'])
-		new_pain.time = request.POST['time']
-		new_pain.save()
+		try:
+			pain = Pain.objects.get(patient = user, hour = request.POST['hour'], time = request.POST['time'])
+			pain.data = request.POST['data']
+			pain.save()
+		except:
+			new_pain = Pain()
+			new_pain.data = request.POST['data']
+			new_pain.patient = user
+			new_pain.hour = int(request.POST['hour'])
+			new_pain.time = request.POST['time']
+			new_pain.save()
 		j = json.dumps({'success':1})
 		return Ht(j,content_type = "application/json", status = 200)
 	except:
@@ -197,8 +213,6 @@ def getExerciseResponse(patient):
 			last5 = json.loads(e.lastFiveTimes)
 		else:
 			last5 = []
-		print last5
-		print assigned_days
 		for d in range(len(assigned_days)):
 			if assigned_days[d]  == 1:
 				for alld in dates[d]:
@@ -213,12 +227,47 @@ def getExerciseResponse(patient):
 	response = {"success":1, "all_exercises":all_exercises, "current_exercises":current_exercises}
 	return response
 
-
+def get3DayExerciseResponse(patient):
+	response = {}
+	exercise_list = Exercise.objects.filter(patient = patient)
+	print exercise_list
+	dates = get3Days()
+	print dates
+	all_exercises = []
+	current_exercises = []
+	for e in exercise_list:
+		if e.name == '':
+			e.name = 'aaa'
+		if e.reps == '':
+			e.reps = 'lll'
+		e.save()
+		assigned_days = json.loads(e.days_assigned)
+		assigned_days = json.loads(assigned_days)
+		all_exercises.append({'name':e.name, 'e_id':e.id, 'e_sets':e.reps, 'e_assigned_days':assigned_days})
+		print e.lastFiveTimes
+		if len(e.lastFiveTimes) > 1:
+			last5 = json.loads(e.lastFiveTimes)
+		else:
+			last5 = []
+		for d in range(len(assigned_days)):
+			if assigned_days[d]  == 1:
+				for alld in dates[d]:
+					found = False
+					for x in last5:
+						if alld == x['date']:
+							found = True
+							current_exercises.append({'name':e.name, 'e_id':e.id, 'e_sets':e.reps, 'e_assigned_days':assigned_days, 'e_date': alld, "e_completion":int(x['completion'])})
+					if found == False:
+						current_exercises.append({'name':e.name, 'e_id':e.id, 'e_sets':e.reps, 'e_date': alld, 'e_assigned_days':assigned_days,"e_completion":0})
+						current_exercises = sorted(current_exercises, key = lambda x: x['e_date'])[::-1]
+	response = {"success":1, "all_exercises":all_exercises, "current_exercises":current_exercises}
+	print response['current_exercises']
+	return response
+	
 @csrf_exempt
 def postExerciseInstance(request):
 	user = User.objects.get(session_key = request.POST['session_key'])
 	exercise = Exercise.objects.get(id = request.POST['exercise_id'])
-	print exercise.lastFiveTimes
 	if exercise.lastFiveTimes == '':
 		dates = []
 	else:
@@ -229,15 +278,15 @@ def postExerciseInstance(request):
 		if x['date'] == new_date:
 			x['completion'] = request.POST['exercise_completion']
 			found = True
-	print 'went through loops'
 	if found == False:
 		dates.append({'date':new_date, 'completion': request.POST['exercise_completion']})
-		print 'abbbend'
 	if len(dates) > 24:
 		dates.pop(-1)
-	print 'about to save'
 	exercise.lastFiveTimes = json.dumps(dates)
 	exercise.save()
+	request.GET = request.POST
+	return getExercisesForPatient(request)
+	'''
 	exercise_list = Exercise.objects.filter(patient = user)
 	now = datetime.datetime.strptime(request.POST['date'], "%Y-%m-%d").date()
 	now_num = now.isoweekday() - 1 
@@ -270,9 +319,10 @@ def postExerciseInstance(request):
 	response = {"success":1, "td":td, "rd":rd, "yd":yd}
 	json_response = json.dumps(response)
 	return Ht(json_response, content_type = "applicaiton/json")
+	'''
 	
 @csrf_exempt
-def getExercisesForPatient(request):
+def oldgetExercisesForPatient(request):
 	now = datetime.datetime.strptime(request.GET['date'], "%Y-%m-%d").date()
 	print now
 	now_num = now.isoweekday() - 1 
@@ -306,6 +356,42 @@ def getExercisesForPatient(request):
 		response = {"success":1, "td":td, "rd":rd, "yd":yd}
 		json_response = json.dumps(response)
 		return Ht(json_response, content_type = "applicaiton/json")
+
+@csrf_exempt
+def getExercisesForPatient(request):
+	if True:
+		print 'today'
+		today = datetime.datetime.now()
+		tomorrow = today + datetime.timedelta(days = 1)
+		yesterday = today - datetime.timedelta(days = 1)
+		user = User.objects.get(session_key = request.GET['session_key'])
+		r = get3DayExerciseResponse(user)
+		current = r['current_exercises']
+		exercise_list = Exercise.objects.filter(patient = user)
+		td = {"exercise_name":[], "exercise_id": [], "reps":[],"date":today.strftime('%m/%d/%y'), "completion":[]}
+		rd = {"exercise_name":[], "exercise_id": [], "reps":[],"date":tomorrow.strftime('%m/%d/%y'),"completion":[]}
+		yd = {"exercise_name":[], "exercise_id": [], "reps":[],"date":yesterday.strftime('%m/%d/%y'),"completion":[]}
+		print 'setup'
+		for e in current:
+			if e['e_date'] == today.strftime('%m/%d/%y'):
+				td["exercise_name"].append(e['name'])
+				td["exercise_id"].append(e['e_id'])
+				td["reps"].append(e['e_sets'])
+				td["completion"].append(e['e_completion'])
+			if e['e_date'] == tomorrow.strftime('%m/%d/%y'):
+				rd["exercise_name"].append(e['name'])
+				rd["exercise_id"].append(e['e_id'])
+				rd["reps"].append(e['e_sets'])
+				rd["completion"].append(e['e_completion'])
+			if e['e_date'] == yesterday.strftime('%m/%d/%y'):
+				yd["exercise_name"].append(e['name'])
+				yd["exercise_id"].append(e['e_id'])
+				yd["reps"].append(e['e_sets'])
+				yd["completion"].append(e['e_completion'])
+		response = {"success":1, "td":td, "rd":rd, "yd":yd}
+		json_response = json.dumps(response)
+		return Ht(json_response, content_type = "applicaiton/json")
+
 		
 @csrf_exempt
 def getPatientsExerciseData(request):
@@ -400,11 +486,12 @@ def getDaySteps(day_string, patient):
 	return returned_list
 
 def getDayPain(day_string, patient):
-	returned_list = [[0 for x in range(24)],['0' for x in range(24)]]
+	returned_list = [[0 for x in range(24)],[[0] for x in range(24)]]
 	pain_list = Pain.objects.filter(patient = patient, time = day_string).order_by('hour')
 	for p in pain_list:
 		returned_list[0][p.hour] = 1
-		returned_list[1][p.hour] = p.data
+		returned_list[1][p.hour] = json.loads(p.data)
+		print returned_list[1]
 	return returned_list
 		
 	
@@ -430,7 +517,7 @@ def getActivity(request):
 				tmp['name'] = now.strftime("%A")
 				[tmp_pain,tmp_data] = getDayPain(now_string,patient)
 				tmp_activity = getDaySteps(now_string,patient)
-				tmp['data'] = {'activity':tmp_activity, 'pain': tmp_pain}
+				tmp['data'] = {'activity':tmp_activity, 'pain': tmp_pain, 'data':tmp_data}
 				response['graphs'].append(tmp)
 				now = now + datetime.timedelta(-1)
 				print now

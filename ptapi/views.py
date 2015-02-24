@@ -207,7 +207,7 @@ def getExerciseResponse(patient):
 		e.save()
 		assigned_days = json.loads(e.days_assigned)
 		assigned_days = json.loads(assigned_days)
-		all_exercises.append({'name':e.name, 'e_id':e.id, 'e_sets':e.reps, 'e_assigned_days':assigned_days})
+		all_exercises.append({'name':e.name, 'e_id':e.id, 'e_sets':e.reps, 'e_assigned_days':assigned_days, 'e_link':e.link_to_url})
 		print e.lastFiveTimes
 		if len(e.lastFiveTimes) > 1:
 			last5 = json.loads(e.lastFiveTimes)
@@ -220,9 +220,9 @@ def getExerciseResponse(patient):
 					for x in last5:
 						if alld == x['date']:
 							found = True
-							current_exercises.append({'name':e.name, 'e_id':e.id, 'e_sets':e.reps, 'e_assigned_days':assigned_days, 'e_date': alld, "e_completion":int(x['completion'])})
+							current_exercises.append({'name':e.name, 'e_id':e.id, 'e_sets':e.reps, 'e_assigned_days':assigned_days, 'e_date': alld, 'e_link':e.link_to_url, "e_completion":int(x['completion'])})
 					if found == False:
-						current_exercises.append({'name':e.name, 'e_id':e.id, 'e_sets':e.reps, 'e_date': alld, 'e_assigned_days':assigned_days,"e_completion":0})
+						current_exercises.append({'e_link':e.link_to_url, 'name':e.name, 'e_id':e.id, 'e_sets':e.reps, 'e_date': alld, 'e_assigned_days':assigned_days,"e_completion":0})
 						current_exercises = sorted(current_exercises, key = lambda x: x['e_date'])[::-1]
 	response = {"success":1, "all_exercises":all_exercises, "current_exercises":current_exercises}
 	return response
@@ -243,7 +243,6 @@ def get3DayExerciseResponse(patient):
 		e.save()
 		assigned_days = json.loads(e.days_assigned)
 		assigned_days = json.loads(assigned_days)
-		all_exercises.append({'name':e.name, 'e_id':e.id, 'e_sets':e.reps, 'e_assigned_days':assigned_days})
 		print e.lastFiveTimes
 		if len(e.lastFiveTimes) > 1:
 			last5 = json.loads(e.lastFiveTimes)
@@ -256,9 +255,9 @@ def get3DayExerciseResponse(patient):
 					for x in last5:
 						if alld == x['date']:
 							found = True
-							current_exercises.append({'name':e.name, 'e_id':e.id, 'e_sets':e.reps, 'e_assigned_days':assigned_days, 'e_date': alld, "e_completion":int(x['completion'])})
+							current_exercises.append({'e_link':e.link_to_url,'name':e.name, 'e_id':e.id, 'e_sets':e.reps, 'e_assigned_days':assigned_days, 'e_date': alld, "e_completion":int(x['completion'])})
 					if found == False:
-						current_exercises.append({'name':e.name, 'e_id':e.id, 'e_sets':e.reps, 'e_date': alld, 'e_assigned_days':assigned_days,"e_completion":0})
+						current_exercises.append({'e_link':e.link_to_url, 'name':e.name, 'e_id':e.id, 'e_sets':e.reps, 'e_date': alld, 'e_assigned_days':assigned_days,"e_completion":0})
 						current_exercises = sorted(current_exercises, key = lambda x: x['e_date'])[::-1]
 	response = {"success":1, "all_exercises":all_exercises, "current_exercises":current_exercises}
 	print response['current_exercises']
@@ -320,7 +319,7 @@ def postExerciseInstance(request):
 	json_response = json.dumps(response)
 	return Ht(json_response, content_type = "applicaiton/json")
 	'''
-	
+'''	
 @csrf_exempt
 def oldgetExercisesForPatient(request):
 	now = datetime.datetime.strptime(request.GET['date'], "%Y-%m-%d").date()
@@ -356,7 +355,7 @@ def oldgetExercisesForPatient(request):
 		response = {"success":1, "td":td, "rd":rd, "yd":yd}
 		json_response = json.dumps(response)
 		return Ht(json_response, content_type = "applicaiton/json")
-
+'''
 @csrf_exempt
 def getExercisesForPatient(request):
 	if True:
@@ -409,6 +408,7 @@ def editExerciseData(request):
 	exercise.name = request.POST['name']
 	exercise.reps = request.POST['sets']
 	exercise.days_assigned = json.dumps(request.POST['assigned_days'])
+	exercise.link_to_url = request.POST['url']
 	exercise.save()
 	response = getExerciseResponse(patient)
 	#response = {"success":1, "all_exercises":[{"name":"hug","e_id":0, "e_sets":"there was a time", "e_assigned_days":[0,0,1,0,0,0,0]}], "current_exercises":[{"name":"kiss","e_id":0,"e_date":"8/11/14","e_completion":0}]}
@@ -442,6 +442,7 @@ def addNewExercise(request):
 			new_exercise.days_assigned = json.dumps(request.POST['assigned_days'])
 			print 'days'
 			new_exercise.reps = request.POST['sets']
+			new_exercise.link_to_url = request.POST['url']
 			new_exercise.patient = patient
 			new_exercise.save()
 			response = getExerciseResponse(patient)

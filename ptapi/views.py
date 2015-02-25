@@ -367,9 +367,9 @@ def getExercisesForPatient(request):
 		r = get3DayExerciseResponse(user)
 		current = r['current_exercises']
 		exercise_list = Exercise.objects.filter(patient = user)
-		td = {"exercise_name":[], "exercise_id": [], "reps":[],"date":today.strftime('%m/%d/%y'), "completion":[]}
-		rd = {"exercise_name":[], "exercise_id": [], "reps":[],"date":tomorrow.strftime('%m/%d/%y'),"completion":[]}
-		yd = {"exercise_name":[], "exercise_id": [], "reps":[],"date":yesterday.strftime('%m/%d/%y'),"completion":[]}
+		td = {"exercise_name":[], "exercise_id": [], "reps":[],"date":today.strftime('%m/%d/%y'), "completion":[], "url":[]}
+		rd = {"exercise_name":[], "exercise_id": [], "reps":[],"date":tomorrow.strftime('%m/%d/%y'),"completion":[],"url":[]}
+		yd = {"exercise_name":[], "exercise_id": [], "reps":[],"date":yesterday.strftime('%m/%d/%y'),"completion":[],"url":[]}
 		print 'setup'
 		for e in current:
 			if e['e_date'] == today.strftime('%m/%d/%y'):
@@ -377,16 +377,19 @@ def getExercisesForPatient(request):
 				td["exercise_id"].append(e['e_id'])
 				td["reps"].append(e['e_sets'])
 				td["completion"].append(e['e_completion'])
+				td["url"].append(e['e_link'])
 			if e['e_date'] == tomorrow.strftime('%m/%d/%y'):
 				rd["exercise_name"].append(e['name'])
 				rd["exercise_id"].append(e['e_id'])
 				rd["reps"].append(e['e_sets'])
 				rd["completion"].append(e['e_completion'])
+				rd["url"].append(e['e_link'])
 			if e['e_date'] == yesterday.strftime('%m/%d/%y'):
 				yd["exercise_name"].append(e['name'])
 				yd["exercise_id"].append(e['e_id'])
 				yd["reps"].append(e['e_sets'])
 				yd["completion"].append(e['e_completion'])
+				yd["url"].append(e['e_link'])
 		response = {"success":1, "td":td, "rd":rd, "yd":yd}
 		json_response = json.dumps(response)
 		return Ht(json_response, content_type = "applicaiton/json")

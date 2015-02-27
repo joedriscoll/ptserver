@@ -1,6 +1,10 @@
 from django.test import TestCase
 import views
 
+
+
+#views.createAchievements()
+#views.deleteallachievements()
 class Request():
     def __init__(self):
 		self.POST = {'data': [{'date':'1', 'hour':'2', 'steps':'90'}]}

@@ -8,6 +8,7 @@ class User(models.Model):
 	email = models.CharField(max_length = 100)
 	session_key = models.CharField(max_length = 2000, null = True, blank = True)
 	session_ip = models.GenericIPAddressField(null = True, blank = True)
+	exercise_number = models.IntegerField(default = 0)
 
 class Pair(models.Model):
 	assigned_pt = models.ForeignKey(User, related_name = 'assinged_pt')
@@ -48,7 +49,9 @@ class Achievement(models.Model):
 class UserAchievement(models.Model):
 	user = models.ForeignKey(User)
 	achievement = models.ForeignKey(Achievement)
+	date = models.DateTimeField(auto_now = True)
 	unique_together = (('user','achievement'),)
+	
 
 	
 	

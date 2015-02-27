@@ -29,6 +29,140 @@ def getLast14Days():
 		i += 1
 	return dates
 
+def checkForNewAchievements(user):
+	ans = 1
+	
+	a = Achievement.objects.get(name = "Welcome!")
+	try:
+		ua = UserAchievement.objects.get(user = user, achievement = a)
+	except:
+		ua = UserAchievement()
+		ua.user = user
+		ua.achievement = a
+		ua.save()
+		ans = 4
+		
+	a = Achievement.objects.get(name = "E5!")
+	try:
+		ua = UserAchievement.objects.get(user = user, achievement = a)
+	except:
+		if user.exercise_number >= 5:
+			ua = UserAchievement()
+			ua.user = user
+			ua.achievement = a
+			ua.save()
+			ans = 4
+			
+	a = Achievement.objects.get(name = "E10!")
+	try:
+		ua = UserAchievement.objects.get(user = user, achievement = a)
+	except:
+		if user.exercise_number >= 10:
+			ua = UserAchievement()
+			ua.user = user
+			ua.achievement = a
+			ua.save()
+			ans = 4
+	
+	a = Achievement.objects.get(name = "E20!")
+	try:
+		ua = UserAchievement.objects.get(user = user, achievement = a)
+	except:
+		if user.exercise_number >= 20:
+			ua = UserAchievement()
+			ua.user = user
+			ua.achievement = a
+			ua.save()
+			ans = 4
+	
+	a = Achievement.objects.get(name = "E40!")
+	try:
+		ua = UserAchievement.objects.get(user = user, achievement = a)
+	except:
+		if user.exercise_number >= 40:
+			ua = UserAchievement()
+			ua.user = user
+			ua.achievement = a
+			ua.save()
+			ans = 4
+	
+	a = Achievement.objects.get(name = "E80!")
+	try:
+		ua = UserAchievement.objects.get(user = user, achievement = a)
+	except:
+		if user.exercise_number >= 80:
+			ua = UserAchievement()
+			ua.user = user
+			ua.achievement = a
+			ua.save()
+			ans = 4
+	
+		a = Achievement.objects.get(name = "Pain5!")
+	try:
+		ua = UserAchievement.objects.get(user = user, achievement = a)
+	except:
+		p_list = Pain.objects.filter(patient = user)
+		if len(p_list) > 5:
+			ua = UserAchievement()
+			ua.user = user
+			ua.achievement = a
+			ua.save()
+			ans = 4
+	
+	a = Achievement.objects.get(name = "Pain10!")
+	try:
+		ua = UserAchievement.objects.get(user = user, achievement = a)
+	except:
+		p_list = Pain.objects.filter(patient = user)
+		if len(p_list) > 10:
+			ua = UserAchievement()
+			ua.user = user
+			ua.achievement = a
+			ua.save()
+			ans = 4
+	
+	a = Achievement.objects.get(name = "Pain20!")
+	try:
+		ua = UserAchievement.objects.get(user = user, achievement = a)
+	except:
+		p_list = Pain.objects.filter(patient = user)
+		if len(p_list) > 20:
+			ua = UserAchievement()
+			ua.user = user
+			ua.achievement = a
+			ua.save()
+			ans = 4
+
+	a = Achievement.objects.get(name = "Pain40!")
+	try:
+		ua = UserAchievement.objects.get(user = user, achievement = a)
+	except:
+		p_list = Pain.objects.filter(patient = user)
+		if len(p_list) > 20:
+			ua = UserAchievement()
+			ua.user = user
+			ua.achievement = a
+			ua.save()
+			ans = 4
+			
+	a = Achievement.objects.get(name = "Pain80!")
+	try:
+		ua = UserAchievement.objects.get(user = user, achievement = a)
+	except:
+		p_list = Pain.objects.filter(patient = user)
+		if len(p_list) > 20:
+			ua = UserAchievement()
+			ua.user = user
+			ua.achievement = a
+			ua.save()
+			ans = 4
+		
+	print ans
+	return ans
+	#number of completed exercise instances 5 10 20 40 80 160
+	#first login 
+	#signing up a pt 1
+	#number of logging of pain 5 10 20 40 80 160
 
 def get3Days():
 	now = datetime.datetime.now()
@@ -59,7 +193,7 @@ def login(request):
 			#else:
 			#	user.session_ip = "0.0.0.0.0.0"
 			user.save()
-			j = json.dumps({'success':1,'session_key':session_key})
+			j = json.dumps({'success':checkForNewAchievements(user),'session_key':session_key})
 			return Ht(j,content_type = "application/json")
 		else:
 			j = json.dumps({'success':2,'UserName':user.name})
@@ -119,7 +253,7 @@ def addPair(request):
 		new_pair.patient = user
 		new_pair.assigned_pt = pt
 		new_pair.save()
-		j = json.dumps({'success':1})
+		j = json.dumps({'success':checkForNewAchievements(user)})
 		return Ht(j,content_type = "application/json", status = 200)
 		
 
@@ -138,7 +272,7 @@ def logPain(request):
 			new_pain.hour = int(request.POST['hour'])
 			new_pain.time = request.POST['time']
 			new_pain.save()
-		j = json.dumps({'success':1})
+		j = json.dumps({'success':checkForNewAchievements(user)})
 		return Ht(j,content_type = "application/json", status = 200)
 	except:
 		j = json.dumps({'success':2})
@@ -279,10 +413,14 @@ def postExerciseInstance(request):
 			found = True
 	if found == False:
 		dates.append({'date':new_date, 'completion': request.POST['exercise_completion']})
+		if int(request.POST['exercise_completion']) == 2:
+			user.exercise_number  = user.exercise_number + 1
+			user.save()
 	if len(dates) > 24:
 		dates.pop(-1)
 	exercise.lastFiveTimes = json.dumps(dates)
 	exercise.save()
+	
 	request.GET = request.POST
 	return getExercisesForPatient(request)
 	'''
@@ -390,7 +528,7 @@ def getExercisesForPatient(request):
 				yd["reps"].append(e['e_sets'])
 				yd["completion"].append(e['e_completion'])
 				yd["url"].append(e['e_link'])
-		response = {"success":1, "td":td, "rd":rd, "yd":yd}
+		response = {"success":checkForNewAchievements(user), "td":td, "rd":rd, "yd":yd}
 		json_response = json.dumps(response)
 		return Ht(json_response, content_type = "applicaiton/json")
 
@@ -422,7 +560,13 @@ def editExerciseData(request):
 def getAchievements(request):
 	if True:
 		user = User.objects.get(session_key = request.GET['session_key'])
-		response = {'success':1, "nameToD":{'first':"this is the first thing", 'second':"This is the second thing"}, "complete":['first','second']}
+		aList = UserAchievement.objects.filter(user = user).order_by('date')[::-1]
+		response = {'success':1, "nameToD":{}, "complete":[]}
+
+		for a in aList:
+			response['nameToD'][a.achievement.name] = a.achievement.description
+			response['complete'].append(a.achievement.name)
+		
 		json_response = json.dumps(response)
 		return Ht(json_response, content_type = "application/json")
 		
@@ -452,7 +596,7 @@ def addNewExercise(request):
 			json_response = json.dumps(response,ensure_ascii = True)
 			return Ht(json_response, content_type = "application/json")
 		else:
-			return Ht(json_dumps({"success":2}), content_type = "application/json")
+			return Ht(json_dumps({"success":1}), content_type = "application/json")
 	
 @csrf_exempt
 def addSteps(request):
@@ -591,4 +735,80 @@ def getPossiblePair(request):
 
 '''	
 
+def deleteallachievements():
+	ua = UserAchievement.objects.all()
+	for u in ua:
+		u.delete()
+	ac = Achievement.objects.all()
+	for a in ac:
+		a.delete()
+
+
+def createAchievements():
+
+	#number of completed exercise instances 5 10 20 40 80 160
+	#first login 
+	#signing up a pt 1
+	#number of logging of pain 5 10 20 40 80 160
+	
+	n = Achievement()
+	n.name = "Welcome!"
+	n.description = "You logged into your patient portal!"
+	n.save()
+	
+	n = Achievement()
+	n.name = "I choose you!"
+	n.description = "You added a physical therapist!"
+	n.save()
+	
+	n = Achievement()
+	n.name = "Pain5!"
+	n.description = "You logged 5 episodes of pain!"
+	n.save()
+	
+	n = Achievement()
+	n.name = "Pain10!"
+	n.description = "You logged 10 episodes of pain!"
+	n.save()
+	
+	n = Achievement()
+	n.name = "Pain20!"
+	n.description = "You logged 20 episodes of pain!"
+	n.save()
+	
+	n = Achievement()
+	n.name = "Pain40!"
+	n.description = "You logged 40 episodes of pain!"
+	n.save()
+	
+	n = Achievement()
+	n.name = "Pain80!"
+	n.description = "You logged 80 episodes of pain!"
+	n.save()
+	
+	n = Achievement()
+	n.name = "E5!"
+	n.description = "You completed 5 exercises!"
+	n.save()
+	
+	n = Achievement()
+	n.name = "E10!"
+	n.description = "You completed 10 exercises!"
+	n.save()
+	
+	n = Achievement()
+	n.name = "E20!"
+	n.description = "You completed 20 exercises!"
+	n.save()
+	
+	n = Achievement()
+	n.name = "E40!"
+	n.description = "You completed 40 exercises!"
+	n.save()
+	
+	n = Achievement()
+	n.name = "E80!"
+	n.description = "You completed 80 exercises!"
+	n.save()
+	
 	

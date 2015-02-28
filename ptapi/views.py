@@ -609,19 +609,19 @@ def addSteps(request):
 			single_step = step.split(',')
 			try:
 				print 'tru'
-				act = Activity.objects.get(time = single_step[0], hour = int(single_step[1]), type = 'steps')
+				act = Activity.objects.get(time = single_step[0], hour = int(single_step[2]), type = 'steps')
 				print act
-				if act.data != single_step[2]:
-					act.data = single_step[2]
+				if act.data != single_step[1]:
+					act.data = single_step[1]
 					act.save()
 			except:
 				print 'ese'
 				act = Activity()
 				act.time = single_step[0]
-				act.hour = int(single_step[1])
+				act.hour = int(single_step[2])
 				print 'hour'
 				act.type = 'steps'
-				act.data = single_step[2]
+				act.data = single_step[1]
 				print 'data'
 				act.patient = user
 				print 'user'

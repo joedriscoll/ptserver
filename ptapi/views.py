@@ -638,11 +638,17 @@ def getDaySteps(day_string, patient):
 	step_list = Activity.objects.filter(type = "steps", patient = patient, time = day_string).order_by('hour')
 	count = 1
 	print count
-	for stepIndex in range(len(step_list)):
+	stepIndex = 0
+	while stepIndex <  len(step_list):
+		print count
 		print 'asef'
 		print step_list[stepIndex].hour
+		print step_list[stepIndex].data
+		print step_list[stepIndex].time
+		print 'data above'
 		if step_list[stepIndex].hour == count:
 			returned_list.append(int(step_list[stepIndex].data))
+			stepIndex += 1
 			count += 1
 		else:
 			returned_list.append(0)

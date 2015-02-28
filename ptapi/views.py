@@ -621,7 +621,7 @@ def addSteps(request):
 		json_response = json.dumps(response)
 		return Ht(json_response, content_type = "application/json")
 	else:
-		return Ht(json.dumps({'success':1}), content_type = "application/json")
+		return Ht(json.dumps({'success':2}), content_type = "application/json")
 				
 				
 def getDaySteps(day_string, patient):

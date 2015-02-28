@@ -603,19 +603,28 @@ def addSteps(request):
 	if True:
 		user = User.objects.get(session_key = request.POST['session_key'])
 		#user = User.objects.get(name = "joe")
-		for step in request.POST['data']:
+		step_list = request.POST['steps'].split('^')
+		step_list.pop(-1)
+		for step in step_list:
+			single_step = step.split(',')
 			try:
-				act = Activity.objects.get(time = step['date'], hour = int(step['hour']), type = 'steps')
-				if act.data != step['steps']:
-					act.data = step['steps']
+				print 'tru'
+				act = Activity.objects.get(time = single_step[0], hour = int(single_step[1]), type = 'steps')
+				print act
+				if act.data != single_step[2]:
+					act.data = single_step[2]
 					act.save()
 			except:
+				print 'ese'
 				act = Activity()
-				act.time = step['date']
-				act.hour = int(step['hour'])
+				act.time = single_step[0]
+				act.hour = int(single_step[1])
+				print 'hour'
 				act.type = 'steps'
-				act.data = step['steps']
+				act.data = single_step[2]
+				print 'data'
 				act.patient = user
+				print 'user'
 				act.save()
 		response = {"success":1}
 		json_response = json.dumps(response)

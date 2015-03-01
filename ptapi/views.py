@@ -636,7 +636,7 @@ def addSteps(request):
 def getDaySteps(day_string, patient):
 	returned_list = []
 	step_list = Activity.objects.filter(type = "steps", patient = patient, time = day_string).order_by('hour')
-	count = 1
+	count = 0
 	print count
 	stepIndex = 0
 	while stepIndex <  len(step_list):
@@ -650,6 +650,7 @@ def getDaySteps(day_string, patient):
 			returned_list.append(int(step_list[stepIndex].data))
 			stepIndex += 1
 			count += 1
+		elif count
 		else:
 			returned_list.append(0)
 			count += 1

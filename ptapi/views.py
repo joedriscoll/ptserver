@@ -184,9 +184,12 @@ def login(request):
 	#print request.POST['username']
 	if True:
 		user = User.objects.get(name = request.POST['username'])
+		print "hihih"
 		if user.password_hash == hash(request.POST['password']):
+			print "aaa"
 			session_key = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits + string.ascii_lowercase) for _ in range(1000))+user.name
 			user.session_key = session_key
+			print "mmmm"
 			#ip = get_ip(request)
 			#if ip is not None:
 			#	user.session_ip = request.META['HTTP_X_FORWARDED_FOR']
@@ -209,6 +212,7 @@ def register(request):
 		new_user.name = request.POST['username']
 		new_user.email = request.POST['email']
 		new_user.password_hash = hash(request.POST['password'])
+		print 'apps'
 		if request.POST['type'] == 'pt':
 			new_user.is_pt = True
 		new_user.save()
@@ -609,7 +613,7 @@ def addSteps(request):
 			single_step = step.split(',')
 			try:
 				print 'tru'
-				act = Activity.objects.get(time = single_step[0], hour = int(single_step[2]), type = 'steps')
+				act = Activity.objects.get(patient = user, time = single_step[0], hour = int(single_step[2]), type = 'steps')
 				print act
 				if act.data != single_step[1]:
 					act.data = single_step[1]

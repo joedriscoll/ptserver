@@ -17,6 +17,7 @@ urlpatterns = patterns('',
     url(r'addNewInstance', views.postExerciseInstance, name = 'addNewInstance'),
     url(r'getAchievements', views.getAchievements, name = 'Achievements'),
      url(r'addsteps', views.addSteps, name = 'addsteps'),
-     url(r'assignPT', views.addPair, name = 'addPair')
+     url(r'assignPT', views.addPair, name = 'addPair'), 
+     url(r'deleteExerciseData', views.deleteExerciseData, name = 'deleteExerciseData')
      
 )

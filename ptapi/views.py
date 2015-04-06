@@ -556,7 +556,15 @@ def editExerciseData(request):
 	exercise.link_to_url = request.POST['url']
 	exercise.save()
 	response = getExerciseResponse(patient)
-	#response = {"success":1, "all_exercises":[{"name":"hug","e_id":0, "e_sets":"there was a time", "e_assigned_days":[0,0,1,0,0,0,0]}], "current_exercises":[{"name":"kiss","e_id":0,"e_date":"8/11/14","e_completion":0}]}
+	json_response = json.dumps(response)
+	return Ht(json_response, content_type = "application/json")
+	
+@csrf_exempt
+def deleteExerciseData(request):
+	patient = User.objects.get(name = request.POST['patient_username'])
+	exercise = Exercise.objects.get(id = request.POST['e_id'])
+	exercise.delete()
+	response = getExerciseResponse(patient)
 	json_response = json.dumps(response)
 	return Ht(json_response, content_type = "application/json")
 

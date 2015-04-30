@@ -364,6 +364,21 @@ def getExerciseResponse(patient):
 						current_exercises = sorted(current_exercises, key = lambda x: x['e_date'])[::-1]
 	response = {"success":1, "all_exercises":all_exercises, "current_exercises":current_exercises}
 	return response
+	
+	
+def findCommonExercises(patient):
+	exercise_list = Exercise.objects.filter(common = True)
+	exercise_patient_list = Exercise.objects.filter(patient = patient)
+	exercise_names_patient_list = [e.name for e in exercise_patient_list]
+	all_exercises = []
+	for e in exercise_list:
+		if e.patient != patient and e.name not in exercise_names_patient_list:
+			assigned_days = json.loads(e.days_assigned)
+			assigned_days = json.loads(assigned_days)
+			all_exercises.append({'name':e.name, 'e_id':-1, 'e_sets':e.reps, 'e_assigned_days':assigned_days, 'e_link':e.link_to_url})
+	response = {"success":1, "all_exercises":all_exercises}
+	return response
+
 
 def get3DayExerciseResponse(patient):
 	response = {}
@@ -427,77 +442,7 @@ def postExerciseInstance(request):
 	
 	request.GET = request.POST
 	return getExercisesForPatient(request)
-	'''
-	exercise_list = Exercise.objects.filter(patient = user)
-	now = datetime.datetime.strptime(request.POST['date'], "%Y-%m-%d").date()
-	now_num = now.isoweekday() - 1 
-	now_date = now.strftime("%m/%d/%y")
-	tomorrow = now + datetime.timedelta(days = 1)
-	tomorrow_num = tomorrow.isoweekday() - 1
-	tomorrow_date = tomorrow.strftime("%m/%d/%y")
-	yesterday = now + datetime.timedelta(days = -1)
-	yesterday_num = yesterday.isoweekday() - 1
-	yesterday_date = yesterday.strftime("%m/%d/%y")
-	td = {"exercise_name":[], "exercise_id": [], "reps":[],"date":now_date}
-	rd = {"exercise_name":[], "exercise_id": [], "reps":[],"date":tomorrow_date}
-	yd = {"exercise_name":[], "exercise_id": [], "reps":[],"date":yesterday_date}
-	for e in exercise_list:
-		assigned_days = json.loads(json.loads(e.days_assigned))
-		if int(assigned_days[now_num]) > 0:
-			print 'it was found today'
-			td["exercise_name"].append(e.name)
-			td["exercise_id"].append(e.id)
-			td["reps"].append(e.reps)
-		if int(assigned_days[tomorrow_num]) > 0:
-			rd["exercise_name"].append(e.name)
-			rd["exercise_id"].append(e.id)
-			rd["reps"].append(e.reps)
-		if int(assigned_days[yesterday_num]) > 0:
-			yd["exercise_name"].append(e.name)
-			yd["exercise_id"].append(e.id)
-			yd["reps"].append(e.reps)
-	print 'response'
-	response = {"success":1, "td":td, "rd":rd, "yd":yd}
-	json_response = json.dumps(response)
-	return Ht(json_response, content_type = "applicaiton/json")
-	'''
-'''	
-@csrf_exempt
-def oldgetExercisesForPatient(request):
-	now = datetime.datetime.strptime(request.GET['date'], "%Y-%m-%d").date()
-	print now
-	now_num = now.isoweekday() - 1 
-	now_date = now.strftime("%m/%d/%y")
-	tomorrow = now + datetime.timedelta(days = 1)
-	tomorrow_num = tomorrow.isoweekday() - 1
-	tomorrow_date = tomorrow.strftime("%m/%d/%y")
-	yesterday = now + datetime.timedelta(days = -1)
-	yesterday_num = yesterday.isoweekday() - 1
-	yesterday_date = yesterday.strftime("%m/%d/%y")
-	if True:
-		user = User.objects.get(session_key = request.GET['session_key'])
-		exercise_list = Exercise.objects.filter(patient = user)
-		td = {"exercise_name":[], "exercise_id": [], "reps":[],"date":now_date}
-		rd = {"exercise_name":[], "exercise_id": [], "reps":[],"date":tomorrow_date}
-		yd = {"exercise_name":[], "exercise_id": [], "reps":[],"date":yesterday_date}
-		for e in exercise_list:
-			assigned_days = json.loads(json.loads(e.days_assigned))
-			if int(assigned_days[now_num]) > 0:
-				td["exercise_name"].append(e.name)
-				td["exercise_id"].append(e.id)
-				td["reps"].append(e.reps)
-			if int(assigned_days[tomorrow_num]) > 0:
-				rd["exercise_name"].append(e.name)
-				rd["exercise_id"].append(e.id)
-				rd["reps"].append(e.reps)
-			if int(assigned_days[yesterday_num]) > 0:
-				yd["exercise_name"].append(e.name)
-				yd["exercise_id"].append(e.id)
-				yd["reps"].append(e.reps)
-		response = {"success":1, "td":td, "rd":rd, "yd":yd}
-		json_response = json.dumps(response)
-		return Ht(json_response, content_type = "applicaiton/json")
-'''
+
 @csrf_exempt
 def getExercisesForPatient(request):
 	if True:
@@ -546,10 +491,22 @@ def getPatientsExerciseData(request):
 	return Ht(json_response, content_type = "application/json")
 	
 @csrf_exempt
+def getCommonExercises(request):
+	patient = User.objects.get(name = request.GET['patient_username'])
+	print patient.name
+	response = findCommonExercises(patient)
+	print "aaaaa"
+	json_response = json.dumps(response, ensure_ascii = True)
+	return Ht(json_response, content_type = "application/json")
+	
+@csrf_exempt
 def editExerciseData(request):
 #get the pair
 	patient = User.objects.get(name = request.POST['patient_username'])
-	exercise = Exercise.objects.get(id = request.POST['e_id'])
+	if request.POST['e_id'] == -1:
+		exercise = Exercise()
+	else:
+		exercise = Exercise.objects.get(id = request.POST['e_id'])
 	exercise.name = request.POST['name']
 	exercise.reps = request.POST['sets']
 	exercise.days_assigned = json.dumps(request.POST['assigned_days'])
@@ -562,8 +519,9 @@ def editExerciseData(request):
 @csrf_exempt
 def deleteExerciseData(request):
 	patient = User.objects.get(name = request.POST['patient_username'])
-	exercise = Exercise.objects.get(id = request.POST['e_id'])
-	exercise.delete()
+	if request.POST['e_id'] != -1:
+		exercise = Exercise.objects.get(id = request.POST['e_id'])
+		exercise.delete()
 	response = getExerciseResponse(patient)
 	json_response = json.dumps(response)
 	return Ht(json_response, content_type = "application/json")

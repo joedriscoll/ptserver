@@ -41,6 +41,9 @@ class Exercise(models.Model):
 	lastFiveTimes = models.CharField(max_length = 400)
 	first_day = models.DateTimeField(auto_now = True)
 	link_to_url = models.CharField(max_length = 1000, null = True, blank = True)
+	common = models.BooleanField(default = True)
+	
+
 
 class Achievement(models.Model):
 	name = models.CharField(max_length = 100)
